@@ -1,0 +1,62 @@
+name: scx-rustland
+grade: stable
+base: core24
+confinement: strict
+adopt-info: scx-rustland
+summary: A sched-ext scheduler in Rust that prioritizes interactive workloads
+description: |
+  scx_rustland is Linux scheduler made of a BPF component (dispatcher) that
+  implements the low level sched-ext functionalities and a user-space
+  counterpart (scheduler), written in Rust, that implements the
+  actual scheduling policy.
+
+  Please ensure that the following interfaces are connected to grant the
+  scheduler complete resource access
+
+    sudo snap connect scx-rustland:procfs-files
+    sudo snap connect scx-rustland:system-observe
+    sudo snap connect scx-rustland:system-trace
+
+  The scheduler is designed to prioritize interactive workloads over background
+  CPU-intensive workloads. For this reason the typical use case involves
+  low-latency interactive applications, such as gaming, video conferencing and
+  live streaming.
+
+plugs:
+  procfs-files:
+    interface: system-files
+    write: [ /proc/sys/vm/compact_unevictable_allowed ]
+    read: [ /sys/kernel/btf/vmlinux ]
+
+
+apps:
+  scx-rustland:
+    command: bin/scx_rustland
+    plugs:
+      - home
+      - system-trace
+      - system-observe
+      - process-control
+      - procfs-files
+
+
+parts:
+  scx-rustland:
+    plugin: dump
+    source: .
+    build-packages:
+      - libelf-dev
+      - clang
+      - llvm
+      - cargo
+      - rustc
+      - rustfmt
+      - pkg-config
+    override-build: |
+      # Install rustland from crates.io
+      CARGO_TARGET_DIR="$CRAFT_PART_INSTALL" cargo install --root="$CRAFT_PART_INSTALL" scx_rustland
+
+      # Sync the snap version with the crate version
+      craftctl set version=$(cargo search scx_rustland | sed -ne 's/^scx_rustland = "\(.*\)".*/\1/p')
+
+      craftctl default
