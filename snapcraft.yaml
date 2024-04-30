@@ -13,20 +13,18 @@ description: |
   Please ensure that the following interfaces are connected to grant the
   scheduler complete resource access
 
-    sudo snap connect scx-rustland:procfs-files
+    sudo snap connect scx-rustland:process-control
     sudo snap connect scx-rustland:system-observe
     sudo snap connect scx-rustland:system-trace
+
+  Also make sure that compaction kthread does not reclaim unevictable memory
+
+    echo 0 | sudo tee /proc/sys/vm/compact_unevictable_allowed
 
   The scheduler is designed to prioritize interactive workloads over background
   CPU-intensive workloads. For this reason the typical use case involves
   low-latency interactive applications, such as gaming, video conferencing and
   live streaming.
-
-plugs:
-  procfs-files:
-    interface: system-files
-    write: [ /proc/sys/vm/compact_unevictable_allowed ]
-    read: [ /sys/kernel/btf/vmlinux ]
 
 
 apps:
@@ -37,7 +35,6 @@ apps:
       - system-trace
       - system-observe
       - process-control
-      - procfs-files
 
 
 parts:
