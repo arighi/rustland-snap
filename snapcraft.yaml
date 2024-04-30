@@ -10,6 +10,9 @@ description: |
   counterpart (scheduler), written in Rust, that implements the
   actual scheduling policy.
 
+  In order to use scx_rustland you need to install the latest Ubuntu kernel from this ppa
+  https://launchpad.net/~arighi/+archive/ubuntu/sched-ext
+
   Please ensure that the following interfaces are connected to grant the
   scheduler complete resource access
 
@@ -17,7 +20,8 @@ description: |
     sudo snap connect scx-rustland:system-observe
     sudo snap connect scx-rustland:system-trace
 
-  Also make sure that compaction kthread does not reclaim unevictable memory
+  Also make sure that compaction kthread does not reclaim unevictable memory to
+  improve scheduler's stability
 
     echo 0 | sudo tee /proc/sys/vm/compact_unevictable_allowed
 
