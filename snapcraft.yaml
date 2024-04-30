@@ -27,6 +27,13 @@ description: |
   live streaming.
 
 
+plugs:
+  kernel-files:
+    interface: system-files
+    write: [ /proc/sys/vm/compact_unevictable_allowed ]
+    read: [ /sys/kernel/btf/vmlinux ]
+
+
 apps:
   scx-rustland:
     command: bin/scx_rustland
@@ -35,6 +42,7 @@ apps:
       - system-trace
       - system-observe
       - process-control
+      - kernel-files
 
 
 parts:
